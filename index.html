@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>声でリストアップ</title>
+<style>
+  :root{
+    --bg:#0f1220; --card:#1a1f35; --card2:#222a47; --line:#2e3860;
+    --txt:#eef1ff; --sub:#9aa3c7; --accent:#6c8cff; --accent2:#8b6cff;
+    --green:#37d39b; --red:#ff6b81; --amber:#ffc24b; --pink:#ff7eb6;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;}
+  body{padding-bottom:90px;}
+  header{position:sticky; top:0; z-index:10; background:linear-gradient(180deg,#161b30,#0f1220);
+    padding:14px 16px 10px; border-bottom:1px solid var(--line);}
+  header h1{margin:0; font-size:18px; letter-spacing:.5px;}
+  header .sub{color:var(--sub); font-size:12px; margin-top:2px;}
+  main{padding:16px; max-width:680px; margin:0 auto;}
+
+  /* タブ */
+  nav{position:fixed; bottom:0; left:0; right:0; z-index:20; display:flex;
+    background:rgba(16,20,38,.96); backdrop-filter:blur(8px); border-top:1px solid var(--line);}
+  nav button{flex:1; background:none; border:none; color:var(--sub); padding:10px 0 14px;
+    font-size:11px; display:flex; flex-direction:column; align-items:center; gap:3px;}
+  nav button .ic{font-size:22px;}
+  nav button.active{color:var(--accent);}
+
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* 録音 */
+  .mic-wrap{display:flex; flex-direction:column; align-items:center; gap:10px; margin:18px 0 8px;}
+  .mic{width:120px; height:120px; border-radius:50%; border:none; cursor:pointer;
+    background:radial-gradient(circle at 30% 30%,var(--accent),var(--accent2));
+    color:#fff; font-size:46px; box-shadow:0 10px 30px rgba(108,140,255,.4); transition:transform .1s;}
+  .mic:active{transform:scale(.96);}
+  .mic.rec{animation:pulse 1.2s infinite; background:radial-gradient(circle at 30% 30%,#ff5d73,#c0245a);}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,93,115,.5);}70%{box-shadow:0 0 0 22px rgba(255,93,115,0);}100%{box-shadow:0 0 0 0 rgba(255,93,115,0);}}
+  .mic-hint{color:var(--sub); font-size:13px; text-align:center;}
+  .transcript{background:var(--card); border:1px dashed var(--line); border-radius:12px;
+    padding:12px; min-height:54px; font-size:15px; line-height:1.6; color:var(--txt);}
+  .transcript.empty{color:var(--sub);}
+
+  .tips{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-top:14px;}
+  .tips b{color:var(--accent);} .tips p{margin:6px 0; font-size:13px; color:var(--sub); line-height:1.6;}
+  .tips code{background:#0c1020; padding:1px 6px; border-radius:5px; color:var(--green); font-size:12px;}
+
+  /* フォーム */
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:12px; color:var(--sub); margin-bottom:4px;}
+  .field input,.field textarea,.field select{width:100%; background:var(--card); border:1px solid var(--line);
+    border-radius:10px; color:var(--txt); padding:11px 12px; font-size:15px; font-family:inherit;}
+  .field textarea{min-height:60px; resize:vertical;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+
+  .priostars{display:flex; gap:8px;}
+  .priostars span{font-size:30px; cursor:pointer; color:#3b4470;}
+  .priostars span.on{color:var(--amber);}
+
+  .statusrow{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{border:1px solid var(--line); background:var(--card); color:var(--sub);
+    padding:7px 12px; border-radius:999px; font-size:13px; cursor:pointer;}
+  .chip.on{color:#fff; border-color:transparent;}
+  .chip[data-s="未連絡"].on{background:var(--red);}
+  .chip[data-s="連絡済"].on{background:var(--amber); color:#222;}
+  .chip[data-s="アポ"].on{background:var(--accent);}
+  .chip[data-s="紹介済"].on{background:var(--green); color:#08231a;}
+
+  .btn{display:block; width:100%; border:none; border-radius:12px; padding:14px; font-size:16px;
+    font-weight:600; cursor:pointer; margin-top:6px;}
+  .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2)); color:#fff;}
+  .btn.ghost{background:var(--card); color:var(--sub); border:1px solid var(--line);}
+  .btn.danger{background:none; color:var(--red); border:1px solid var(--red);}
+
+  /* リスト */
+  .filterbar{display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:6px;}
+  .filterbar .chip{white-space:nowrap;}
+  .filterbar .chip.active{background:var(--accent); color:#fff; border-color:transparent;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px;}
+  .card .top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .card .name{font-size:17px; font-weight:700;}
+  .card .meta{color:var(--sub); font-size:13px; margin-top:3px; line-height:1.6;}
+  .badge{font-size:11px; padding:3px 9px; border-radius:999px; white-space:nowrap;}
+  .badge.未連絡{background:rgba(255,107,129,.18); color:var(--red);}
+  .badge.連絡済{background:rgba(255,194,75,.18); color:var(--amber);}
+  .badge.アポ{background:rgba(108,140,255,.18); color:var(--accent);}
+  .badge.紹介済{background:rgba(55,211,155,.18); color:var(--green);}
+  .stars{color:var(--amber); font-size:13px; letter-spacing:1px;}
+  .empty-state{text-align:center; color:var(--sub); padding:50px 20px; font-size:14px; line-height:1.8;}
+
+  .secbtns{display:flex; gap:10px; margin-top:18px;}
+  .secbtns .btn{margin-top:0;}
+  .count{color:var(--sub); font-size:13px; margin-bottom:10px;}
+
+  /* モーダル */
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:50; display:none;
+    align-items:flex-end; justify-content:center;}
+  .modal.open{display:flex;}
+  .sheet{background:var(--bg); width:100%; max-width:680px; max-height:90vh; overflow-y:auto;
+    border-radius:18px 18px 0 0; padding:18px 16px 30px; border-top:1px solid var(--line);}
+  .sheet h2{margin:0 0 14px; font-size:18px;}
+  .toast{position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
+    background:var(--green); color:#08231a; padding:10px 18px; border-radius:999px; font-weight:600;
+    font-size:14px; z-index:99; opacity:0; transition:opacity .3s; pointer-events:none;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎙️ 声でリストアップ</h1>
+  <div class="sub">話すだけで紹介候補をどんどん登録</div>
+</header>
+
+<main>
+  <!-- ===== 録音ビュー ===== -->
+  <section id="view-rec" class="view active">
+    <div class="mic-wrap">
+      <button id="micBtn" class="mic">🎤</button>
+      <div id="micHint" class="mic-hint">マイクを押して話してください</div>
+    </div>
+    <div id="transcript" class="transcript empty">ここに話した言葉が出ます…</div>
+
+    <button id="parseBtn" class="btn primary" style="margin-top:14px;">この内容を項目に振り分ける →</button>
+
+    <div class="tips">
+      <p><b>話し方のコツ</b>（区切って言うほど正確です）</p>
+      <p>例：<code>田中さん、仕事は美容師、高校の同級生、大阪市、副業に興味ありそう、人と話すのが好きだから</code></p>
+      <p>「<b>仕事は〜</b>」「<b>地域は〜</b>」「<b>関係は〜</b>」「<b>理由は〜</b>」と頭につけると確実に振り分きます。振り分け後に手で直せます。</p>
+    </div>
+  </section>
+
+  <!-- ===== リストビュー ===== -->
+  <section id="view-list" class="view">
+    <div class="filterbar" id="filterbar">
+      <button class="chip active" data-f="all">全部</button>
+      <button class="chip" data-f="未連絡">🔴 未連絡</button>
+      <button class="chip" data-f="連絡済">🟡 連絡済</button>
+      <button class="chip" data-f="アポ">🔵 アポ</button>
+      <button class="chip" data-f="紹介済">🟢 紹介済</button>
+    </div>
+    <div class="count" id="listCount"></div>
+    <div id="listArea"></div>
+    <div class="secbtns">
+      <button class="btn ghost" id="exportBtn">📤 バックアップ書き出し</button>
+      <button class="btn ghost" id="importBtn">📥 読み込み</button>
+    </div>
+  </section>
+
+  <!-- ===== 優先順位ビュー ===== -->
+  <section id="view-prio" class="view">
+    <div class="count">優先度が高い順（★3→★1）。上から声をかけていきましょう。</div>
+    <div id="prioArea"></div>
+  </section>
+</main>
+
+<!-- タブ -->
+<nav>
+  <button class="active" data-v="rec"><span class="ic">🎙️</span>録音</button>
+  <button data-v="list"><span class="ic">📋</span>リスト</button>
+  <button data-v="prio"><span class="ic">⭐</span>優先順位</button>
+</nav>
+
+<!-- 編集モーダル -->
+<div class="modal" id="modal">
+  <div class="sheet">
+    <h2 id="sheetTitle">候補者を登録</h2>
+    <input type="hidden" id="f-id">
+    <div class="field"><label>名前</label><input id="f-name" placeholder="例：田中さん"></div>
+    <div class="row2">
+      <div class="field"><label>仕事</label><input id="f-job" placeholder="例：美容師"></div>
+      <div class="field"><label>地域</label><input id="f-area" placeholder="例：大阪市"></div>
+    </div>
+    <div class="field"><label>関係性</label><input id="f-rel" placeholder="例：高校の同級生"></div>
+    <div class="field"><label>伝えたいこと</label><textarea id="f-msg" placeholder="例：副業に興味ありそう"></textarea></div>
+    <div class="field"><label>なぜこの仕事をしてほしいか</label><textarea id="f-why" placeholder="例：人と話すのが好きだから"></textarea></div>
+
+    <div class="field"><label>つながり状況</label>
+      <div class="statusrow" id="statusRow">
+        <button class="chip on" data-s="未連絡">未連絡</button>
+        <button class="chip" data-s="連絡済">連絡済</button>
+        <button class="chip" data-s="アポ">アポ</button>
+        <button class="chip" data-s="紹介済">紹介済</button>
+      </div>
+    </div>
+    <div class="field"><label>優先度</label>
+      <div class="priostars" id="prioStars">
+        <span data-p="1">★</span><span data-p="2">★</span><span data-p="3">★</span>
+      </div>
+    </div>
+
+    <button class="btn primary" id="saveBtn">保存する</button>
+    <button class="btn ghost" id="cancelBtn">キャンセル</button>
+    <button class="btn danger" id="deleteBtn" style="display:none;">この人を削除</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== データ層 ===================== */
+const KEY = "listup_people_v1";
+const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
+const save = (a) => localStorage.setItem(KEY, JSON.stringify(a));
+let people = load();
+
+const STATUSES = ["未連絡","連絡済","アポ","紹介済"];
+let currentFilter = "all";
+let draft = blank();   // 編集中の一時データ
+
+function blank(){ return {id:null,name:"",job:"",area:"",rel:"",msg:"",why:"",status:"未連絡",prio:2}; }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* ===================== 音声認識 ===================== */
+let recog=null, recording=false, finalText="";
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const micBtn=document.getElementById("micBtn");
+const micHint=document.getElementById("micHint");
+const tEl=document.getElementById("transcript");
+
+function setTranscript(txt){
+  if(txt.trim()){ tEl.textContent=txt; tEl.classList.remove("empty"); }
+  else { tEl.textContent="ここに話した言葉が出ます…"; tEl.classList.add("empty"); }
+}
+
+if(!SR){
+  micHint.textContent="この端末は音声認識に未対応です。下のボタンから手入力できます。";
+  micBtn.style.opacity=".5";
+}
+
+micBtn.addEventListener("click", ()=>{
+  if(!SR){ openModal(blank()); return; }
+  if(recording){ recog.stop(); return; }
+  recog = new SR();
+  recog.lang="ja-JP"; recog.continuous=true; recog.interimResults=true;
+  finalText="";
+  recog.onstart=()=>{ recording=true; micBtn.classList.add("rec"); micBtn.textContent="⏹"; micHint.textContent="聞いています… もう一度押すと停止"; };
+  recog.onresult=(e)=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const r=e.results[i];
+      if(r.isFinal) finalText+=r[0].transcript;
+      else interim+=r[0].transcript;
+    }
+    setTranscript(finalText+interim);
+  };
+  recog.onerror=(e)=>{ micHint.textContent="認識エラー："+e.error+"（マイク許可をご確認ください）"; };
+  recog.onend=()=>{ recording=false; micBtn.classList.remove("rec"); micBtn.textContent="🎤"; micHint.textContent="マイクを押して話してください"; };
+  recog.start();
+});
+
+/* ===================== 文章 → 項目 振り分け ===================== */
+const JOB_WORDS=["美容師","看護師","教師","先生","会社員","公務員","主婦","主夫","自営","経営","社長","営業","エンジニア","医者","医師","薬剤師","保育士","介護","農業","漁業","建設","大工","電気","運転手","ドライバー","調理","料理人","シェフ","パート","アルバイト","学生","フリーランス","デザイナー","美容","エステ","整体","税理士","弁護士","不動産","保険","販売"];
+const REL_WORDS=["同級生","同期","友達","友人","親友","知人","親戚","いとこ","兄","弟","姉","妹","親","父","母","先輩","後輩","同僚","上司","部下","近所","ご近所","ママ友","元同僚","幼なじみ","幼馴染","取引先","お客","顧客","紹介"];
+const AREA_RE=/[一-龯ぁ-んァ-ヶ]{1,8}?(都|道|府|県|市|区|町|村)/g;
+
+function parse(text){
+  const d=blank();
+  let t=text.replace(/\s+/g,"").trim();
+  // 句読点・読点で分割
+  const parts=t.split(/[、。,，・\n]/).map(s=>s.trim()).filter(Boolean);
+
+  const usedIdx=new Set();
+  // 1) 明示キュー（「仕事は〜」など）を最優先
+  const cues=[
+    {k:"job", re:/^(仕事|職業|お仕事)(は|が|＝|:|：)?/},
+    {k:"area",re:/^(地域|住んでる|住まい|場所|エリア|地区)(は|が|＝|:|：)?/},
+    {k:"rel", re:/^(関係|間柄|つながり)(は|が|＝|:|：)?/},
+    {k:"why", re:/^(理由|なぜ|わけ|目的)(は|が|＝|:|：)?/},
+    {k:"msg", re:/^(伝えたい|伝える|メッセージ|ひとこと|一言)(こと|の|は|＝|:|：)?/},
+    {k:"name",re:/^(名前|氏名)(は|が|＝|:|：)?/},
+  ];
+  parts.forEach((p,i)=>{
+    for(const c of cues){
+      if(c.re.test(p)){ d[c.k]=p.replace(c.re,"").trim(); usedIdx.add(i); break; }
+    }
+  });
+
+  // 2) 名前：未設定なら最初のチャンク（さん/くん等で終わる優先）
+  if(!d.name){
+    let ni=parts.findIndex((p,i)=>!usedIdx.has(i)&&/(さん|くん|君|ちゃん|氏)$/.test(p));
+    if(ni<0) ni=parts.findIndex((p,i)=>!usedIdx.has(i));
+    if(ni>=0){ d.name=parts[ni]; usedIdx.add(ni); }
+  }
+
+  // 3) 残りチャンクをキーワードで自動分類
+  parts.forEach((p,i)=>{
+    if(usedIdx.has(i)) return;
+    let placed=false;
+    if(!d.job && JOB_WORDS.some(w=>p.includes(w))){ d.job=p; usedIdx.add(i); placed=true; }
+    if(!placed && !d.rel && REL_WORDS.some(w=>p.includes(w))){ d.rel=p; usedIdx.add(i); placed=true; }
+    if(!placed && !d.area){ const m=p.match(AREA_RE); if(m){ d.area=p; usedIdx.add(i); placed=true; } }
+    if(!placed && /(から|ので|ため|たい)$/.test(p) && !d.why){ d.why=p; usedIdx.add(i); placed=true; }
+  });
+
+  // 4) それでも余ったものは「伝えたいこと」に集約
+  const leftover=parts.filter((p,i)=>!usedIdx.has(i));
+  if(leftover.length){ d.msg=(d.msg?d.msg+" / ":"")+leftover.join(" / "); }
+
+  return d;
+}
+
+document.getElementById("parseBtn").addEventListener("click", ()=>{
+  const text=tEl.classList.contains("empty")?"":tEl.textContent;
+  if(!text.trim()){ openModal(blank()); toast("手入力で登録できます"); return; }
+  const d=parse(text); d.id=null;
+  openModal(d);
+});
+
+/* ===================== モーダル（登録/編集） ===================== */
+const modal=document.getElementById("modal");
+const F={id:"f-id",name:"f-name",job:"f-job",area:"f-area",rel:"f-rel",msg:"f-msg",why:"f-why"};
+let curStatus="未連絡", curPrio=2;
+
+function openModal(d){
+  draft=d;
+  document.getElementById("sheetTitle").textContent = d.id?"候補者を編集":"候補者を登録";
+  document.getElementById("f-id").value=d.id||"";
+  document.getElementById("f-name").value=d.name||"";
+  document.getElementById("f-job").value=d.job||"";
+  document.getElementById("f-area").value=d.area||"";
+  document.getElementById("f-rel").value=d.rel||"";
+  document.getElementById("f-msg").value=d.msg||"";
+  document.getElementById("f-why").value=d.why||"";
+  setStatus(d.status||"未連絡"); setPrio(d.prio||2);
+  document.getElementById("deleteBtn").style.display = d.id?"block":"none";
+  modal.classList.add("open");
+}
+function closeModal(){ modal.classList.remove("open"); }
+
+document.getElementById("statusRow").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(b) setStatus(b.dataset.s);
+});
+function setStatus(s){ curStatus=s;
+  document.querySelectorAll("#statusRow .chip").forEach(c=>c.classList.toggle("on",c.dataset.s===s));
+}
+document.getElementById("prioStars").addEventListener("click",e=>{
+  const s=e.target.closest("span"); if(s) setPrio(+s.dataset.p);
+});
+function setPrio(p){ curPrio=p;
+  document.querySelectorAll("#prioStars span").forEach(s=>s.classList.toggle("on",+s.dataset.p<=p));
+}
+
+document.getElementById("saveBtn").addEventListener("click", ()=>{
+  const rec={
+    id: document.getElementById("f-id").value || uid(),
+    name: document.getElementById("f-name").value.trim()||"（名前未入力）",
+    job: document.getElementById("f-job").value.trim(),
+    area: document.getElementById("f-area").value.trim(),
+    rel: document.getElementById("f-rel").value.trim(),
+    msg: document.getElementById("f-msg").value.trim(),
+    why: document.getElementById("f-why").value.trim(),
+    status: curStatus, prio: curPrio,
+    updated: Date.now()
+  };
+  const i=people.findIndex(p=>p.id===rec.id);
+  if(i>=0) people[i]=rec; else people.unshift(rec);
+  save(people); closeModal(); render();
+  setTranscript(""); finalText="";
+  toast("保存しました ✓");
+});
+document.getElementById("cancelBtn").addEventListener("click", closeModal);
+document.getElementById("deleteBtn").addEventListener("click", ()=>{
+  const id=document.getElementById("f-id").value;
+  if(!id) return;
+  if(confirm("この人を削除しますか？")){
+    people=people.filter(p=>p.id!==id); save(people); closeModal(); render(); toast("削除しました");
+  }
+});
+modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
+
+/* ===================== 描画 ===================== */
+function metaLine(p){
+  const a=[p.job,p.rel,p.area].filter(Boolean).join(" ・ ");
+  const b=p.msg?("💬 "+p.msg):"";
+  return [a,b].filter(Boolean).join("<br>");
+}
+function cardHTML(p){
+  const stars="★".repeat(p.prio)+"☆".repeat(3-p.prio);
+  return `<div class="card" data-id="${p.id}">
+    <div class="top">
+      <div>
+        <div class="name">${esc(p.name)}</div>
+        <div class="meta">${metaLine(p)||"<span style='opacity:.5'>詳細なし</span>"}</div>
+      </div>
+      <span class="badge ${p.status}">${p.status}</span>
+    </div>
+    <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+      <span class="stars">${stars}</span>
+      <span style="color:var(--sub); font-size:12px;">タップで編集</span>
+    </div>
+  </div>`;
+}
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+function render(){
+  // リスト
+  let list = currentFilter==="all" ? people : people.filter(p=>p.status===currentFilter);
+  const area=document.getElementById("listArea");
+  document.getElementById("listCount").textContent = `${people.length}人を登録中`;
+  area.innerHTML = list.length ? list.map(cardHTML).join("") :
+    `<div class="empty-state">まだ登録がありません。<br>「録音」タブから声で追加してみましょう 🎙️</div>`;
+
+  // 優先順位
+  const sorted=[...people].sort((a,b)=> b.prio-a.prio || (b.updated||0)-(a.updated||0));
+  const pa=document.getElementById("prioArea");
+  pa.innerHTML = sorted.length ? sorted.map(cardHTML).join("") :
+    `<div class="empty-state">登録するとここに優先順で並びます ⭐</div>`;
+}
+document.addEventListener("click",e=>{
+  const c=e.target.closest(".card"); if(!c) return;
+  const p=people.find(x=>x.id===c.dataset.id); if(p) openModal({...p});
+});
+
+/* フィルタ */
+document.getElementById("filterbar").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  currentFilter=b.dataset.f;
+  document.querySelectorAll("#filterbar .chip").forEach(c=>c.classList.toggle("active",c===b));
+  render();
+});
+
+/* タブ切替 */
+document.querySelectorAll("nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById("view-"+btn.dataset.v).classList.add("active");
+    render();
+  });
+});
+
+/* バックアップ書き出し / 読み込み */
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  const data=JSON.stringify(people,null,2);
+  if(navigator.share){
+    navigator.share({title:"リストアップ バックアップ", text:data}).catch(()=>fallbackCopy(data));
+  } else fallbackCopy(data);
+});
+function fallbackCopy(data){
+  navigator.clipboard?.writeText(data).then(()=>toast("コピーしました（メモ等に貼って保存）"))
+    .catch(()=>{ prompt("下のテキストをコピーして保存してください", data); });
+}
+document.getElementById("importBtn").addEventListener("click", ()=>{
+  const txt=prompt("バックアップのテキストを貼り付けてください");
+  if(!txt) return;
+  try{
+    const arr=JSON.parse(txt);
+    if(Array.isArray(arr)){ people=arr; save(people); render(); toast("読み込みました ✓"); }
+    else toast("形式が正しくありません");
+  }catch(_){ toast("読み込めませんでした"); }
+});
+
+/* トースト */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+render();
+</script>
+</body>
+</html>
