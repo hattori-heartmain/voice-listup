@@ -161,6 +161,7 @@
     </div>
     <div class="count" id="listCount"></div>
     <div id="listArea"></div>
+    <button class="btn primary" id="csvBtn" style="margin-top:8px;">📊 表で書き出す（Excel / スプレッドシート）</button>
     <div class="secbtns">
       <button class="btn ghost" id="exportBtn">📤 バックアップ書き出し</button>
       <button class="btn ghost" id="importBtn">📥 読み込み</button>
@@ -476,6 +477,30 @@ document.querySelectorAll("nav button").forEach(btn=>{
     render();
   });
 });
+
+/* CSV書き出し（Excel / スプレッドシート用） */
+function csvCell(v){ v=(v==null?"":String(v)).replace(/"/g,'""'); return '"'+v+'"'; }
+document.getElementById("csvBtn").addEventListener("click", ()=>{
+  if(!people.length){ toast("先に候補者を登録してください"); return; }
+  const head=["名前","仕事","地域","関係性","伝えたいこと","なぜこの仕事をしてほしいか","つながり状況","優先度","更新日"];
+  const rows=people.map(p=>{
+    const dt=p.updated?new Date(p.updated).toLocaleString("ja-JP"):"";
+    return [p.name,p.job,p.area,p.rel,p.msg,p.why,p.status,"★"+(p.prio||0),dt].map(csvCell).join(",");
+  });
+  const csv="﻿"+[head.map(csvCell).join(","),...rows].join("\r\n");   // BOMで文字化け防止
+  const fname="リストアップ_"+new Date().toISOString().slice(0,10)+".csv";
+  const file=new File([csv],fname,{type:"text/csv"});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:"リストアップ"}).catch(()=>downloadBlob(csv,fname));
+  } else downloadBlob(csv,fname);
+});
+function downloadBlob(text,fname){
+  const blob=new Blob([text],{type:"text/csv"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url; a.download=fname; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },1000);
+  toast("書き出しました");
+}
 
 /* バックアップ */
 document.getElementById("exportBtn").addEventListener("click", ()=>{
