@@ -22,7 +22,6 @@
   header .sub{color:var(--sub); font-size:12px; margin-top:2px;}
   main{padding:16px; max-width:680px; margin:0 auto;}
 
-  /* タブ */
   nav{position:fixed; bottom:0; left:0; right:0; z-index:20; display:flex;
     background:rgba(16,20,38,.96); backdrop-filter:blur(8px); border-top:1px solid var(--line);}
   nav button{flex:1; background:none; border:none; color:var(--sub); padding:10px 0 14px;
@@ -34,28 +33,35 @@
   .view.active{display:block;}
 
   /* 録音 */
-  .mic-wrap{display:flex; flex-direction:column; align-items:center; gap:10px; margin:18px 0 8px;}
-  .mic{width:120px; height:120px; border-radius:50%; border:none; cursor:pointer;
+  .modecard{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px;}
+  .modecard h3{margin:0 0 4px; font-size:15px;}
+  .modecard .d{color:var(--sub); font-size:12px; margin-bottom:12px; line-height:1.6;}
+  .mic-wrap{display:flex; flex-direction:column; align-items:center; gap:10px; margin:6px 0;}
+  .mic{width:110px; height:110px; border-radius:50%; border:none; cursor:pointer;
     background:radial-gradient(circle at 30% 30%,var(--accent),var(--accent2));
-    color:#fff; font-size:46px; box-shadow:0 10px 30px rgba(108,140,255,.4); transition:transform .1s;}
+    color:#fff; font-size:42px; box-shadow:0 10px 30px rgba(108,140,255,.4); transition:transform .1s;}
   .mic:active{transform:scale(.96);}
   .mic.rec{animation:pulse 1.2s infinite; background:radial-gradient(circle at 30% 30%,#ff5d73,#c0245a);}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,93,115,.5);}70%{box-shadow:0 0 0 22px rgba(255,93,115,0);}100%{box-shadow:0 0 0 0 rgba(255,93,115,0);}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,93,115,.5);}70%{box-shadow:0 0 0 18px rgba(255,93,115,0);}100%{box-shadow:0 0 0 0 rgba(255,93,115,0);}}
   .mic-hint{color:var(--sub); font-size:13px; text-align:center;}
-  .transcript{background:var(--card); border:1px dashed var(--line); border-radius:12px;
-    padding:12px; min-height:54px; font-size:15px; line-height:1.6; color:var(--txt);}
+  .transcript{background:#0c1020; border:1px dashed var(--line); border-radius:12px;
+    padding:12px; min-height:50px; font-size:15px; line-height:1.7; color:var(--txt); margin-top:10px;}
   .transcript.empty{color:var(--sub);}
 
-  .tips{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-top:14px;}
-  .tips b{color:var(--accent);} .tips p{margin:6px 0; font-size:13px; color:var(--sub); line-height:1.6;}
+  .tips{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-top:8px;}
+  .tips b{color:var(--accent);} .tips p{margin:6px 0; font-size:12.5px; color:var(--sub); line-height:1.7;}
   .tips code{background:#0c1020; padding:1px 6px; border-radius:5px; color:var(--green); font-size:12px;}
 
   /* フォーム */
   .field{margin-bottom:12px;}
   .field label{display:block; font-size:12px; color:var(--sub); margin-bottom:4px;}
-  .field input,.field textarea,.field select{width:100%; background:var(--card); border:1px solid var(--line);
+  .inwrap{display:flex; gap:8px; align-items:stretch;}
+  .inwrap input,.inwrap textarea,.field select{flex:1; width:100%; background:var(--card); border:1px solid var(--line);
     border-radius:10px; color:var(--txt); padding:11px 12px; font-size:15px; font-family:inherit;}
-  .field textarea{min-height:60px; resize:vertical;}
+  .inwrap textarea{min-height:58px; resize:vertical;}
+  .micmini{flex:0 0 auto; width:48px; border-radius:10px; border:1px solid var(--line);
+    background:var(--card2); color:var(--accent); font-size:20px; cursor:pointer;}
+  .micmini.rec{background:var(--red); color:#fff; animation:pulse 1.2s infinite;}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 
   .priostars{display:flex; gap:8px;}
@@ -97,16 +103,16 @@
   .secbtns .btn{margin-top:0;}
   .count{color:var(--sub); font-size:13px; margin-bottom:10px;}
 
-  /* モーダル */
   .modal{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:50; display:none;
     align-items:flex-end; justify-content:center;}
   .modal.open{display:flex;}
-  .sheet{background:var(--bg); width:100%; max-width:680px; max-height:90vh; overflow-y:auto;
+  .sheet{background:var(--bg); width:100%; max-width:680px; max-height:92vh; overflow-y:auto;
     border-radius:18px 18px 0 0; padding:18px 16px 30px; border-top:1px solid var(--line);}
-  .sheet h2{margin:0 0 14px; font-size:18px;}
+  .sheet h2{margin:0 0 4px; font-size:18px;}
+  .sheet .hd{color:var(--sub); font-size:12px; margin-bottom:14px;}
   .toast{position:fixed; bottom:100px; left:50%; transform:translateX(-50%);
     background:var(--green); color:#08231a; padding:10px 18px; border-radius:999px; font-weight:600;
-    font-size:14px; z-index:99; opacity:0; transition:opacity .3s; pointer-events:none;}
+    font-size:14px; z-index:99; opacity:0; transition:opacity .3s; pointer-events:none; max-width:90%; text-align:center;}
   .toast.show{opacity:1;}
 </style>
 </head>
@@ -120,19 +126,28 @@
 <main>
   <!-- ===== 録音ビュー ===== -->
   <section id="view-rec" class="view active">
-    <div class="mic-wrap">
-      <button id="micBtn" class="mic">🎤</button>
-      <div id="micHint" class="mic-hint">マイクを押して話してください</div>
-    </div>
-    <div id="transcript" class="transcript empty">ここに話した言葉が出ます…</div>
 
-    <button id="parseBtn" class="btn primary" style="margin-top:14px;">この内容を項目に振り分ける →</button>
-
-    <div class="tips">
-      <p><b>話し方のコツ</b>（区切って言うほど正確です）</p>
-      <p>例：<code>田中さん、仕事は美容師、高校の同級生、大阪市、副業に興味ありそう、人と話すのが好きだから</code></p>
-      <p>「<b>仕事は〜</b>」「<b>地域は〜</b>」「<b>関係は〜</b>」「<b>理由は〜</b>」と頭につけると確実に振り分きます。振り分け後に手で直せます。</p>
+    <div class="modecard">
+      <h3>① 項目ごとに声で入力（確実）</h3>
+      <div class="d">ボタンを押すと空のカードが開きます。各項目の右にある 🎤 を押して、その項目だけを話してください。一番ミスがありません。</div>
+      <button class="btn primary" id="openFormBtn">＋ 新しい人を声で登録</button>
     </div>
+
+    <div class="modecard">
+      <h3>② まとめて話して自動振り分け（お試し）</h3>
+      <div class="d">大きなマイクを押して、<b>一項目ごとに少し間をあけて</b>話してください（例：「田中さん」…ひと呼吸…「美容師」…）。間が区切りになります。</div>
+      <div class="mic-wrap">
+        <button id="micBtn" class="mic">🎤</button>
+        <div id="micHint" class="mic-hint">マイクを押して話してください</div>
+      </div>
+      <div id="transcript" class="transcript empty">ここに話した言葉が出ます…</div>
+      <button id="parseBtn" class="btn primary" style="margin-top:12px;">この内容を項目に振り分ける →</button>
+      <div class="tips">
+        <p><b>もっと正確にするコツ</b></p>
+        <p>頭に項目名をつけると確実です：<code>仕事は美容師</code> <code>地域は大阪</code> <code>関係は同級生</code> <code>理由は人と話すのが好きだから</code></p>
+      </div>
+    </div>
+
   </section>
 
   <!-- ===== リストビュー ===== -->
@@ -159,7 +174,6 @@
   </section>
 </main>
 
-<!-- タブ -->
 <nav>
   <button class="active" data-v="rec"><span class="ic">🎙️</span>録音</button>
   <button data-v="list"><span class="ic">📋</span>リスト</button>
@@ -170,15 +184,26 @@
 <div class="modal" id="modal">
   <div class="sheet">
     <h2 id="sheetTitle">候補者を登録</h2>
+    <div class="hd">各項目の 🎤 を押して、その項目だけを話してください。</div>
     <input type="hidden" id="f-id">
-    <div class="field"><label>名前</label><input id="f-name" placeholder="例：田中さん"></div>
-    <div class="row2">
-      <div class="field"><label>仕事</label><input id="f-job" placeholder="例：美容師"></div>
-      <div class="field"><label>地域</label><input id="f-area" placeholder="例：大阪市"></div>
+    <div class="field"><label>名前</label>
+      <div class="inwrap"><input id="f-name" placeholder="例：田中さん"><button class="micmini" data-mic="f-name">🎤</button></div>
     </div>
-    <div class="field"><label>関係性</label><input id="f-rel" placeholder="例：高校の同級生"></div>
-    <div class="field"><label>伝えたいこと</label><textarea id="f-msg" placeholder="例：副業に興味ありそう"></textarea></div>
-    <div class="field"><label>なぜこの仕事をしてほしいか</label><textarea id="f-why" placeholder="例：人と話すのが好きだから"></textarea></div>
+    <div class="field"><label>仕事</label>
+      <div class="inwrap"><input id="f-job" placeholder="例：美容師"><button class="micmini" data-mic="f-job">🎤</button></div>
+    </div>
+    <div class="field"><label>地域</label>
+      <div class="inwrap"><input id="f-area" placeholder="例：大阪市"><button class="micmini" data-mic="f-area">🎤</button></div>
+    </div>
+    <div class="field"><label>関係性</label>
+      <div class="inwrap"><input id="f-rel" placeholder="例：高校の同級生"><button class="micmini" data-mic="f-rel">🎤</button></div>
+    </div>
+    <div class="field"><label>伝えたいこと</label>
+      <div class="inwrap"><textarea id="f-msg" placeholder="例：副業に興味ありそう"></textarea><button class="micmini" data-mic="f-msg">🎤</button></div>
+    </div>
+    <div class="field"><label>なぜこの仕事をしてほしいか</label>
+      <div class="inwrap"><textarea id="f-why" placeholder="例：人と話すのが好きだから"></textarea><button class="micmini" data-mic="f-why">🎤</button></div>
+    </div>
 
     <div class="field"><label>つながり状況</label>
       <div class="statusrow" id="statusRow">
@@ -208,17 +233,42 @@ const KEY = "listup_people_v1";
 const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
 const save = (a) => localStorage.setItem(KEY, JSON.stringify(a));
 let people = load();
-
-const STATUSES = ["未連絡","連絡済","アポ","紹介済"];
 let currentFilter = "all";
-let draft = blank();   // 編集中の一時データ
 
 function blank(){ return {id:null,name:"",job:"",area:"",rel:"",msg:"",why:"",status:"未連絡",prio:2}; }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
-/* ===================== 音声認識 ===================== */
-let recog=null, recording=false, finalText="";
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let activeRecog=null;   // 同時に1つだけ
+function stopActive(){ if(activeRecog){ try{activeRecog.stop();}catch(_){} activeRecog=null; } }
+
+/* ===================== ①項目ごとマイク ===================== */
+function bindFieldMic(btn){
+  btn.addEventListener("click", ()=>{
+    if(!SR){ toast("この端末は音声認識に未対応です。キーボードで入力してください"); return; }
+    const target=document.getElementById(btn.dataset.mic);
+    // 既にこのボタンが録音中なら止める
+    if(btn.classList.contains("rec")){ stopActive(); return; }
+    stopActive();
+    document.querySelectorAll(".micmini.rec").forEach(b=>b.classList.remove("rec"));
+    const r=new SR(); activeRecog=r;
+    r.lang="ja-JP"; r.continuous=false; r.interimResults=true; r.maxAlternatives=1;
+    const base = (target.tagName==="TEXTAREA" && target.value.trim()) ? target.value.trim()+" " : "";
+    r.onstart=()=>{ btn.classList.add("rec"); btn.textContent="⏹"; };
+    r.onresult=(e)=>{
+      let txt="";
+      for(let i=0;i<e.results.length;i++) txt+=e.results[i][0].transcript;
+      target.value = (target.tagName==="TEXTAREA") ? base+cleanVal(txt) : cleanVal(txt);
+    };
+    r.onerror=(e)=>{ toast("認識エラー："+e.error); };
+    r.onend=()=>{ btn.classList.remove("rec"); btn.textContent="🎤"; if(activeRecog===r) activeRecog=null; };
+    r.start();
+  });
+}
+document.querySelectorAll(".micmini").forEach(bindFieldMic);
+
+/* ===================== ②まとめ録音 ===================== */
+let finalText="";
 const micBtn=document.getElementById("micBtn");
 const micHint=document.getElementById("micHint");
 const tEl=document.getElementById("transcript");
@@ -227,98 +277,110 @@ function setTranscript(txt){
   if(txt.trim()){ tEl.textContent=txt; tEl.classList.remove("empty"); }
   else { tEl.textContent="ここに話した言葉が出ます…"; tEl.classList.add("empty"); }
 }
-
-if(!SR){
-  micHint.textContent="この端末は音声認識に未対応です。下のボタンから手入力できます。";
-  micBtn.style.opacity=".5";
-}
+if(!SR){ micHint.textContent="この端末は音声認識に未対応です（①の手入力をお使いください）"; micBtn.style.opacity=".5"; }
 
 micBtn.addEventListener("click", ()=>{
-  if(!SR){ openModal(blank()); return; }
-  if(recording){ recog.stop(); return; }
-  recog = new SR();
-  recog.lang="ja-JP"; recog.continuous=true; recog.interimResults=true;
+  if(!SR){ return; }
+  if(activeRecog && activeRecog._isMain){ stopActive(); return; }
+  stopActive();
+  const r=new SR(); activeRecog=r; r._isMain=true;
+  r.lang="ja-JP"; r.continuous=true; r.interimResults=true;
   finalText="";
-  recog.onstart=()=>{ recording=true; micBtn.classList.add("rec"); micBtn.textContent="⏹"; micHint.textContent="聞いています… もう一度押すと停止"; };
-  recog.onresult=(e)=>{
+  r.onstart=()=>{ micBtn.classList.add("rec"); micBtn.textContent="⏹"; micHint.textContent="聞いています… もう一度押すと停止"; };
+  r.onresult=(e)=>{
     let interim="";
     for(let i=e.resultIndex;i<e.results.length;i++){
-      const r=e.results[i];
-      if(r.isFinal) finalText+=r[0].transcript;
-      else interim+=r[0].transcript;
+      const res=e.results[i];
+      if(res.isFinal) finalText += res[0].transcript.trim()+"、";   // 間ごとに区切りを入れる
+      else interim += res[0].transcript;
     }
     setTranscript(finalText+interim);
   };
-  recog.onerror=(e)=>{ micHint.textContent="認識エラー："+e.error+"（マイク許可をご確認ください）"; };
-  recog.onend=()=>{ recording=false; micBtn.classList.remove("rec"); micBtn.textContent="🎤"; micHint.textContent="マイクを押して話してください"; };
-  recog.start();
+  r.onerror=(e)=>{ micHint.textContent="認識エラー："+e.error+"（マイク許可をご確認ください）"; };
+  r.onend=()=>{ micBtn.classList.remove("rec"); micBtn.textContent="🎤"; micHint.textContent="マイクを押して話してください"; if(activeRecog===r) activeRecog=null; };
+  r.start();
 });
 
 /* ===================== 文章 → 項目 振り分け ===================== */
-const JOB_WORDS=["美容師","看護師","教師","先生","会社員","公務員","主婦","主夫","自営","経営","社長","営業","エンジニア","医者","医師","薬剤師","保育士","介護","農業","漁業","建設","大工","電気","運転手","ドライバー","調理","料理人","シェフ","パート","アルバイト","学生","フリーランス","デザイナー","美容","エステ","整体","税理士","弁護士","不動産","保険","販売"];
-const REL_WORDS=["同級生","同期","友達","友人","親友","知人","親戚","いとこ","兄","弟","姉","妹","親","父","母","先輩","後輩","同僚","上司","部下","近所","ご近所","ママ友","元同僚","幼なじみ","幼馴染","取引先","お客","顧客","紹介"];
-const AREA_RE=/[一-龯ぁ-んァ-ヶ]{1,8}?(都|道|府|県|市|区|町|村)/g;
+const JOB_WORDS=["美容師","看護師","教師","先生","会社員","公務員","主婦","主夫","自営","経営","社長","役員","営業","エンジニア","プログラマ","医者","医師","歯科","薬剤師","保育士","介護","農業","漁業","建設","大工","電気","運転手","ドライバー","調理","料理人","シェフ","パート","アルバイト","バイト","学生","フリーランス","デザイナー","美容","エステ","ネイル","整体","税理士","会計士","弁護士","行政書士","司法書士","不動産","保険","販売","事務","受付","トレーナー","講師","コーチ","コンサル","ヨガ","セラピスト","整骨","鍼灸"];
+const REL_WORDS=["同級生","同窓","同期","クラスメート","友達","友人","親友","知人","知り合い","親戚","いとこ","兄","弟","姉","妹","親","父","母","息子","娘","奥さん","旦那","先輩","後輩","同僚","上司","部下","近所","ご近所","ママ友","パパ友","元同僚","幼なじみ","幼馴染","取引先","お客","顧客","常連","チームメイト","サークル","部活"];
+const AREA_RE=/[一-龥ぁ-んァ-ヶー]{1,8}?(?:都|道|府|県|市|区|町|村)/;
 
-function parse(text){
+function cleanVal(s){
+  return (s||"").replace(/^[、,。\s はがでにを]+/,"").replace(/[、,。\s]+$/,"")
+    .replace(/(です|だよ|だね|ですね|なんだ|なの|でーす)$/,"").trim();
+}
+
+function parse(raw){
   const d=blank();
-  let t=text.replace(/\s+/g,"").trim();
-  // 句読点・読点で分割
-  const parts=t.split(/[、。,，・\n]/).map(s=>s.trim()).filter(Boolean);
+  let t=raw.replace(/\s+/g,"").replace(/[。.!！?？]/g,"、").trim();
+  t=t.replace(/、{2,}/g,"、").replace(/^、+|、+$/g,"");
 
-  const usedIdx=new Set();
-  // 1) 明示キュー（「仕事は〜」など）を最優先
-  const cues=[
-    {k:"job", re:/^(仕事|職業|お仕事)(は|が|＝|:|：)?/},
-    {k:"area",re:/^(地域|住んでる|住まい|場所|エリア|地区)(は|が|＝|:|：)?/},
-    {k:"rel", re:/^(関係|間柄|つながり)(は|が|＝|:|：)?/},
-    {k:"why", re:/^(理由|なぜ|わけ|目的)(は|が|＝|:|：)?/},
-    {k:"msg", re:/^(伝えたい|伝える|メッセージ|ひとこと|一言)(こと|の|は|＝|:|：)?/},
-    {k:"name",re:/^(名前|氏名)(は|が|＝|:|：)?/},
+  // --- キュー語抽出（区切りが無くても拾う） ---
+  const cueDefs=[
+    {f:"name",re:/(?:名前|氏名)(?:は|が|って)?/},
+    {f:"job", re:/(?:お仕事|仕事|職業)(?:は|が|って)?/},
+    {f:"area",re:/(?:住んでいるの|住んでるの|住まい|地域|場所|エリア|地区|在住)(?:は|が)?/},
+    {f:"rel", re:/(?:関係性|関係|間柄|つながり)(?:は|が|って)?/},
+    {f:"why", re:/(?:してほしい理由|理由|目的|なぜなら|なぜかというと)(?:は|が)?/},
+    {f:"msg", re:/(?:伝えたいこと|伝えたいの|伝えること|メッセージ|ひとこと|一言)(?:は|が)?/},
   ];
-  parts.forEach((p,i)=>{
-    for(const c of cues){
-      if(c.re.test(p)){ d[c.k]=p.replace(c.re,"").trim(); usedIdx.add(i); break; }
-    }
+  let marks=[];
+  cueDefs.forEach(c=>{
+    const re=new RegExp(c.re.source,"g"); let m;
+    while((m=re.exec(t))){ marks.push({f:c.f,start:m.index,end:m.index+m[0].length}); if(m.index===re.lastIndex) re.lastIndex++; }
   });
+  marks.sort((a,b)=>a.start-b.start);
+  const consumed=new Array(t.length).fill(false);
+  for(let i=0;i<marks.length;i++){
+    const cur=marks[i];
+    if(d[cur.f]) continue;
+    const next = marks[i+1] ? marks[i+1].start : t.length;
+    const val=cleanVal(t.slice(cur.end,next));
+    if(val) d[cur.f]=val;
+    for(let k=cur.start;k<next;k++) consumed[k]=true;
+  }
+  // 未消費の残り
+  let rest="";
+  for(let k=0;k<t.length;k++) if(!consumed[k]) rest+=t[k];
+  let parts=rest.split("、").map(cleanVal).filter(Boolean);
 
-  // 2) 名前：未設定なら最初のチャンク（さん/くん等で終わる優先）
-  if(!d.name){
-    let ni=parts.findIndex((p,i)=>!usedIdx.has(i)&&/(さん|くん|君|ちゃん|氏)$/.test(p));
-    if(ni<0) ni=parts.findIndex((p,i)=>!usedIdx.has(i));
-    if(ni>=0){ d.name=parts[ni]; usedIdx.add(ni); }
+  // --- 名前（cueで未取得なら先頭から） ---
+  if(!d.name && parts.length){
+    let ni=parts.findIndex(p=>/(さん|くん|君|ちゃん|氏|様)$/.test(p));
+    if(ni<0) ni=0;
+    let nm=parts[ni];
+    const m=nm.match(/^(.{1,12}?(?:さん|くん|君|ちゃん|氏|様))/);
+    if(m){ d.name=m[1]; if(nm.length>m[1].length){ parts[ni]=nm.slice(m[1].length); } else parts.splice(ni,1); }
+    else { d.name=nm; parts.splice(ni,1); }
   }
 
-  // 3) 残りチャンクをキーワードで自動分類
-  parts.forEach((p,i)=>{
-    if(usedIdx.has(i)) return;
-    let placed=false;
-    if(!d.job && JOB_WORDS.some(w=>p.includes(w))){ d.job=p; usedIdx.add(i); placed=true; }
-    if(!placed && !d.rel && REL_WORDS.some(w=>p.includes(w))){ d.rel=p; usedIdx.add(i); placed=true; }
-    if(!placed && !d.area){ const m=p.match(AREA_RE); if(m){ d.area=p; usedIdx.add(i); placed=true; } }
-    if(!placed && /(から|ので|ため|たい)$/.test(p) && !d.why){ d.why=p; usedIdx.add(i); placed=true; }
+  // --- 残りをキーワード分類 ---
+  parts.forEach(p=>{
+    if(!p) return;
+    if(!d.job && JOB_WORDS.some(w=>p.includes(w))){ d.job=p; return; }
+    if(!d.rel && REL_WORDS.some(w=>p.includes(w))){ d.rel=p; return; }
+    if(!d.area && AREA_RE.test(p)){ d.area=p; return; }
+    if(!d.why && /(から|ので|ため|たい|ほしい)$/.test(p)){ d.why=p; return; }
+    d.msg = d.msg ? d.msg+" / "+p : p;
   });
-
-  // 4) それでも余ったものは「伝えたいこと」に集約
-  const leftover=parts.filter((p,i)=>!usedIdx.has(i));
-  if(leftover.length){ d.msg=(d.msg?d.msg+" / ":"")+leftover.join(" / "); }
-
   return d;
 }
 
 document.getElementById("parseBtn").addEventListener("click", ()=>{
+  stopActive();
   const text=tEl.classList.contains("empty")?"":tEl.textContent;
-  if(!text.trim()){ openModal(blank()); toast("手入力で登録できます"); return; }
+  if(!text.trim()){ openModal(blank()); toast("空のカードを開きました。各項目の🎤で入力できます"); return; }
   const d=parse(text); d.id=null;
   openModal(d);
 });
+document.getElementById("openFormBtn").addEventListener("click", ()=>{ stopActive(); openModal(blank()); });
 
-/* ===================== モーダル（登録/編集） ===================== */
+/* ===================== モーダル ===================== */
 const modal=document.getElementById("modal");
-const F={id:"f-id",name:"f-name",job:"f-job",area:"f-area",rel:"f-rel",msg:"f-msg",why:"f-why"};
 let curStatus="未連絡", curPrio=2;
 
 function openModal(d){
-  draft=d;
   document.getElementById("sheetTitle").textContent = d.id?"候補者を編集":"候補者を登録";
   document.getElementById("f-id").value=d.id||"";
   document.getElementById("f-name").value=d.name||"";
@@ -331,20 +393,12 @@ function openModal(d){
   document.getElementById("deleteBtn").style.display = d.id?"block":"none";
   modal.classList.add("open");
 }
-function closeModal(){ modal.classList.remove("open"); }
+function closeModal(){ stopActive(); document.querySelectorAll(".micmini.rec").forEach(b=>{b.classList.remove("rec");b.textContent="🎤";}); modal.classList.remove("open"); }
 
-document.getElementById("statusRow").addEventListener("click",e=>{
-  const b=e.target.closest(".chip"); if(b) setStatus(b.dataset.s);
-});
-function setStatus(s){ curStatus=s;
-  document.querySelectorAll("#statusRow .chip").forEach(c=>c.classList.toggle("on",c.dataset.s===s));
-}
-document.getElementById("prioStars").addEventListener("click",e=>{
-  const s=e.target.closest("span"); if(s) setPrio(+s.dataset.p);
-});
-function setPrio(p){ curPrio=p;
-  document.querySelectorAll("#prioStars span").forEach(s=>s.classList.toggle("on",+s.dataset.p<=p));
-}
+document.getElementById("statusRow").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(b) setStatus(b.dataset.s); });
+function setStatus(s){ curStatus=s; document.querySelectorAll("#statusRow .chip").forEach(c=>c.classList.toggle("on",c.dataset.s===s)); }
+document.getElementById("prioStars").addEventListener("click",e=>{ const s=e.target.closest("span"); if(s) setPrio(+s.dataset.p); });
+function setPrio(p){ curPrio=p; document.querySelectorAll("#prioStars span").forEach(s=>s.classList.toggle("on",+s.dataset.p<=p)); }
 
 document.getElementById("saveBtn").addEventListener("click", ()=>{
   const rec={
@@ -355,8 +409,7 @@ document.getElementById("saveBtn").addEventListener("click", ()=>{
     rel: document.getElementById("f-rel").value.trim(),
     msg: document.getElementById("f-msg").value.trim(),
     why: document.getElementById("f-why").value.trim(),
-    status: curStatus, prio: curPrio,
-    updated: Date.now()
+    status: curStatus, prio: curPrio, updated: Date.now()
   };
   const i=people.findIndex(p=>p.id===rec.id);
   if(i>=0) people[i]=rec; else people.unshift(rec);
@@ -366,11 +419,8 @@ document.getElementById("saveBtn").addEventListener("click", ()=>{
 });
 document.getElementById("cancelBtn").addEventListener("click", closeModal);
 document.getElementById("deleteBtn").addEventListener("click", ()=>{
-  const id=document.getElementById("f-id").value;
-  if(!id) return;
-  if(confirm("この人を削除しますか？")){
-    people=people.filter(p=>p.id!==id); save(people); closeModal(); render(); toast("削除しました");
-  }
+  const id=document.getElementById("f-id").value; if(!id) return;
+  if(confirm("この人を削除しますか？")){ people=people.filter(p=>p.id!==id); save(people); closeModal(); render(); toast("削除しました"); }
 });
 modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
 
@@ -384,32 +434,24 @@ function cardHTML(p){
   const stars="★".repeat(p.prio)+"☆".repeat(3-p.prio);
   return `<div class="card" data-id="${p.id}">
     <div class="top">
-      <div>
-        <div class="name">${esc(p.name)}</div>
-        <div class="meta">${metaLine(p)||"<span style='opacity:.5'>詳細なし</span>"}</div>
-      </div>
+      <div><div class="name">${esc(p.name)}</div>
+        <div class="meta">${metaLine(p)||"<span style='opacity:.5'>詳細なし</span>"}</div></div>
       <span class="badge ${p.status}">${p.status}</span>
     </div>
     <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
       <span class="stars">${stars}</span>
       <span style="color:var(--sub); font-size:12px;">タップで編集</span>
-    </div>
-  </div>`;
+    </div></div>`;
 }
 function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
 function render(){
-  // リスト
   let list = currentFilter==="all" ? people : people.filter(p=>p.status===currentFilter);
-  const area=document.getElementById("listArea");
   document.getElementById("listCount").textContent = `${people.length}人を登録中`;
-  area.innerHTML = list.length ? list.map(cardHTML).join("") :
-    `<div class="empty-state">まだ登録がありません。<br>「録音」タブから声で追加してみましょう 🎙️</div>`;
-
-  // 優先順位
+  document.getElementById("listArea").innerHTML = list.length ? list.map(cardHTML).join("") :
+    `<div class="empty-state">まだ登録がありません。<br>「録音」タブから追加してみましょう 🎙️</div>`;
   const sorted=[...people].sort((a,b)=> b.prio-a.prio || (b.updated||0)-(a.updated||0));
-  const pa=document.getElementById("prioArea");
-  pa.innerHTML = sorted.length ? sorted.map(cardHTML).join("") :
+  document.getElementById("prioArea").innerHTML = sorted.length ? sorted.map(cardHTML).join("") :
     `<div class="empty-state">登録するとここに優先順で並びます ⭐</div>`;
 }
 document.addEventListener("click",e=>{
@@ -417,7 +459,6 @@ document.addEventListener("click",e=>{
   const p=people.find(x=>x.id===c.dataset.id); if(p) openModal({...p});
 });
 
-/* フィルタ */
 document.getElementById("filterbar").addEventListener("click",e=>{
   const b=e.target.closest(".chip"); if(!b) return;
   currentFilter=b.dataset.f;
@@ -425,9 +466,9 @@ document.getElementById("filterbar").addEventListener("click",e=>{
   render();
 });
 
-/* タブ切替 */
 document.querySelectorAll("nav button").forEach(btn=>{
   btn.addEventListener("click",()=>{
+    stopActive();
     document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
@@ -436,33 +477,24 @@ document.querySelectorAll("nav button").forEach(btn=>{
   });
 });
 
-/* バックアップ書き出し / 読み込み */
+/* バックアップ */
 document.getElementById("exportBtn").addEventListener("click", ()=>{
   const data=JSON.stringify(people,null,2);
-  if(navigator.share){
-    navigator.share({title:"リストアップ バックアップ", text:data}).catch(()=>fallbackCopy(data));
-  } else fallbackCopy(data);
+  if(navigator.share){ navigator.share({title:"リストアップ バックアップ", text:data}).catch(()=>fallbackCopy(data)); }
+  else fallbackCopy(data);
 });
 function fallbackCopy(data){
   navigator.clipboard?.writeText(data).then(()=>toast("コピーしました（メモ等に貼って保存）"))
     .catch(()=>{ prompt("下のテキストをコピーして保存してください", data); });
 }
 document.getElementById("importBtn").addEventListener("click", ()=>{
-  const txt=prompt("バックアップのテキストを貼り付けてください");
-  if(!txt) return;
-  try{
-    const arr=JSON.parse(txt);
-    if(Array.isArray(arr)){ people=arr; save(people); render(); toast("読み込みました ✓"); }
-    else toast("形式が正しくありません");
-  }catch(_){ toast("読み込めませんでした"); }
+  const txt=prompt("バックアップのテキストを貼り付けてください"); if(!txt) return;
+  try{ const arr=JSON.parse(txt); if(Array.isArray(arr)){ people=arr; save(people); render(); toast("読み込みました ✓"); } else toast("形式が正しくありません"); }
+  catch(_){ toast("読み込めませんでした"); }
 });
 
-/* トースト */
 let toastTimer;
-function toast(msg){
-  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
-  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
-}
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2200); }
 
 render();
 </script>
