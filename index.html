@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>声でリストアップ</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
     --bg:#0f1220; --card:#1a1f35; --card2:#222a47; --line:#2e3860;
@@ -154,7 +155,7 @@
     <div class="count" id="listCount"></div>
     <div id="listArea"></div>
     <button class="btn primary" id="csvBtn" style="margin-top:8px;">📊 全件を表に書き出す（Excel / スプレッドシート）</button>
-    <div class="count" id="csvNote" style="margin-top:6px; text-align:center;">登録した全員を1つの表にまとめて書き出します（毎回ぜんぶ出力）</div>
+    <div class="count" id="csvNote" style="margin-top:6px; text-align:center;">登録した全員を1つの表（Excel）にまとめて書き出します。セルに分かれた状態で開けます。</div>
     <div class="secbtns">
       <button class="btn ghost" id="exportBtn">📤 バックアップ書き出し</button>
       <button class="btn ghost" id="importBtn">📥 読み込み</button>
@@ -492,24 +493,48 @@ document.querySelectorAll("nav button").forEach(btn=>{
   });
 });
 
-/* CSV書き出し（Excel / スプレッドシート用） */
-function csvCell(v){ v=(v==null?"":String(v)).replace(/"/g,'""'); return '"'+v+'"'; }
+/* 表で書き出し（Excel / スプレッドシート用） */
+const EXPORT_HEAD=["氏名","性別","年齢","関係性","家族構成","職業","居住地","伝えたい理由・ニーズ・備考","声かけ","更新日"];
+function exportRows(){
+  return people.map(p=>{
+    const dt=p.updated?new Date(p.updated).toLocaleString("ja-JP"):"";
+    return [p.name,p.gender,p.age,p.rel,p.family,p.job,p.area,p.note,(p.called?"○":"×"),dt];
+  });
+}
 document.getElementById("csvBtn").addEventListener("click", ()=>{
   if(!people.length){ toast("先に候補者を登録してください"); return; }
-  const head=["氏名","性別","年齢","関係性","家族構成","職業","居住地","伝えたい理由・ニーズ・備考","声かけ","更新日"];
-  const rows=people.map(p=>{
-    const dt=p.updated?new Date(p.updated).toLocaleString("ja-JP"):"";
-    return [p.name,p.gender,p.age,p.rel,p.family,p.job,p.area,p.note,(p.called?"○":"×"),dt].map(csvCell).join(",");
-  });
-  const csv="﻿"+[head.map(csvCell).join(","),...rows].join("\r\n");   // BOMで文字化け防止
-  const fname="リストアップ_全件.csv";   // 固定名＝毎回同じファイルを上書き（常に最新の全件マスター）
-  const file=new File([csv],fname,{type:"text/csv"});
-  if(navigator.canShare && navigator.canShare({files:[file]})){
-    navigator.share({files:[file],title:"リストアップ"}).catch(()=>downloadBlob(csv,fname));
-  } else downloadBlob(csv,fname);
+  const aoa=[EXPORT_HEAD, ...exportRows()];
+
+  // ① 本物のExcel(.xlsx)＝セルに分かれた表として開ける（最優先）
+  if(window.XLSX){
+    try{
+      const ws=XLSX.utils.aoa_to_sheet(aoa);
+      ws["!cols"]=[{wch:12},{wch:6},{wch:8},{wch:14},{wch:18},{wch:12},{wch:12},{wch:34},{wch:8},{wch:20}];
+      const wb=XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb,ws,"リスト");
+      const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+      shareOrDownload(buf,"リストアップ_全件.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      return;
+    }catch(e){ /* 失敗したらCSVへ */ }
+  }
+
+  // ② フォールバック：CSV（BOM付きで文字化け防止）
+  const csvCell=v=>'"'+(v==null?"":String(v)).replace(/"/g,'""')+'"';
+  const csv="﻿"+aoa.map(r=>r.map(csvCell).join(",")).join("\r\n");
+  shareOrDownload(csv,"リストアップ_全件.csv","text/csv");
 });
-function downloadBlob(text,fname){
-  const blob=new Blob([text],{type:"text/csv"});
+
+function shareOrDownload(data,fname,mime){
+  const file=new File([data],fname,{type:mime});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:"リストアップ"})
+      .then(()=>toast("書き出しました"))
+      .catch(()=>downloadBlob(data,fname,mime));
+  } else downloadBlob(data,fname,mime);
+}
+function downloadBlob(data,fname,mime){
+  const blob=new Blob([data],{type:mime});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a"); a.href=url; a.download=fname; document.body.appendChild(a); a.click();
   setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },1000);
