@@ -245,13 +245,26 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let activeRecog=null;   // 同時に1つだけ
 function stopActive(){ if(activeRecog){ try{activeRecog.stop();}catch(_){} activeRecog=null; } }
 
+/* マイク許可は最初の1回だけ取得 → 以降は確認なしで連続して使える */
+let micGranted=false;
+async function ensureMic(){
+  if(micGranted) return true;
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ micGranted=true; return true; }
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:true});
+    s.getTracks().forEach(t=>t.stop());   // 許可だけ取って即解放（録音は音声認識側が行う）
+    micGranted=true; return true;
+  }catch(e){ toast("マイクの使用が許可されませんでした。設定でマイクを許可してください"); return false; }
+}
+
 /* ===================== ①項目ごとマイク ===================== */
 function bindFieldMic(btn){
-  btn.addEventListener("click", ()=>{
+  btn.addEventListener("click", async ()=>{
     if(!SR){ toast("この端末は音声認識に未対応です。キーボードで入力してください"); return; }
     const target=document.getElementById(btn.dataset.mic);
     // 既にこのボタンが録音中なら止める
     if(btn.classList.contains("rec")){ stopActive(); return; }
+    if(!await ensureMic()) return;
     stopActive();
     document.querySelectorAll(".micmini.rec").forEach(b=>b.classList.remove("rec"));
     const r=new SR(); activeRecog=r;
@@ -282,9 +295,10 @@ function setTranscript(txt){
 }
 if(!SR){ micHint.textContent="この端末は音声認識に未対応です（①の手入力をお使いください）"; micBtn.style.opacity=".5"; }
 
-micBtn.addEventListener("click", ()=>{
+micBtn.addEventListener("click", async ()=>{
   if(!SR){ return; }
   if(activeRecog && activeRecog._isMain){ stopActive(); return; }
+  if(!await ensureMic()) return;
   stopActive();
   const r=new SR(); activeRecog=r; r._isMain=true;
   r.lang="ja-JP"; r.continuous=true; r.interimResults=true;
