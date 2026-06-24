@@ -64,18 +64,15 @@
   .micmini.rec{background:var(--red); color:#fff; animation:pulse 1.2s infinite;}
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
 
-  .priostars{display:flex; gap:8px;}
-  .priostars span{font-size:30px; cursor:pointer; color:#3b4470;}
-  .priostars span.on{color:var(--amber);}
-
   .statusrow{display:flex; flex-wrap:wrap; gap:8px;}
   .chip{border:1px solid var(--line); background:var(--card); color:var(--sub);
     padding:7px 12px; border-radius:999px; font-size:13px; cursor:pointer;}
   .chip.on{color:#fff; border-color:transparent;}
-  .chip[data-s="未連絡"].on{background:var(--red);}
-  .chip[data-s="連絡済"].on{background:var(--amber); color:#222;}
-  .chip[data-s="アポ"].on{background:var(--accent);}
-  .chip[data-s="紹介済"].on{background:var(--green); color:#08231a;}
+  .chip[data-g="男性"].on{background:var(--accent);}
+  .chip[data-g="女性"].on{background:var(--pink); color:#3a0e23;}
+  .chip[data-g="その他"].on{background:var(--card2); color:#fff;}
+  .chip[data-c="0"].on{background:var(--red);}
+  .chip[data-c="1"].on{background:var(--green); color:#08231a;}
 
   .btn{display:block; width:100%; border:none; border-radius:12px; padding:14px; font-size:16px;
     font-weight:600; cursor:pointer; margin-top:6px;}
@@ -92,11 +89,8 @@
   .card .name{font-size:17px; font-weight:700;}
   .card .meta{color:var(--sub); font-size:13px; margin-top:3px; line-height:1.6;}
   .badge{font-size:11px; padding:3px 9px; border-radius:999px; white-space:nowrap;}
-  .badge.未連絡{background:rgba(255,107,129,.18); color:var(--red);}
-  .badge.連絡済{background:rgba(255,194,75,.18); color:var(--amber);}
-  .badge.アポ{background:rgba(108,140,255,.18); color:var(--accent);}
-  .badge.紹介済{background:rgba(55,211,155,.18); color:var(--green);}
-  .stars{color:var(--amber); font-size:13px; letter-spacing:1px;}
+  .badge.called{background:rgba(55,211,155,.18); color:var(--green);}
+  .badge.uncalled{background:rgba(255,107,129,.18); color:var(--red);}
   .empty-state{text-align:center; color:var(--sub); padding:50px 20px; font-size:14px; line-height:1.8;}
 
   .secbtns{display:flex; gap:10px; margin-top:18px;}
@@ -135,7 +129,7 @@
 
     <div class="modecard">
       <h3>② まとめて話して自動振り分け（お試し）</h3>
-      <div class="d">大きなマイクを押して、<b>一項目ごとに少し間をあけて</b>話してください（例：「田中さん」…ひと呼吸…「美容師」…）。間が区切りになります。</div>
+      <div class="d">大きなマイクを押して、<b>一項目ごとに少し間をあけて</b>話してください（例：「田中さん」…ひと呼吸…「女性」…「40代」…）。間が区切りになります。</div>
       <div class="mic-wrap">
         <button id="micBtn" class="mic">🎤</button>
         <div id="micHint" class="mic-hint">マイクを押して話してください</div>
@@ -144,7 +138,7 @@
       <button id="parseBtn" class="btn primary" style="margin-top:12px;">この内容を項目に振り分ける →</button>
       <div class="tips">
         <p><b>もっと正確にするコツ</b></p>
-        <p>頭に項目名をつけると確実です：<code>仕事は美容師</code> <code>地域は大阪</code> <code>関係は同級生</code> <code>理由は人と話すのが好きだから</code></p>
+        <p>頭に項目名をつけると確実です：<code>性別は女性</code> <code>年齢は40代</code> <code>仕事は美容師</code> <code>家族は夫婦と子ども2人</code> <code>居住地は大阪</code> <code>関係は同級生</code> <code>理由は人と話すのが好きだから</code></p>
       </div>
     </div>
 
@@ -154,31 +148,23 @@
   <section id="view-list" class="view">
     <div class="filterbar" id="filterbar">
       <button class="chip active" data-f="all">全部</button>
-      <button class="chip" data-f="未連絡">🔴 未連絡</button>
-      <button class="chip" data-f="連絡済">🟡 連絡済</button>
-      <button class="chip" data-f="アポ">🔵 アポ</button>
-      <button class="chip" data-f="紹介済">🟢 紹介済</button>
+      <button class="chip" data-f="uncalled">❌ 未声かけ</button>
+      <button class="chip" data-f="called">⭕ 声かけ済</button>
     </div>
     <div class="count" id="listCount"></div>
     <div id="listArea"></div>
-    <button class="btn primary" id="csvBtn" style="margin-top:8px;">📊 表で書き出す（Excel / スプレッドシート）</button>
+    <button class="btn primary" id="csvBtn" style="margin-top:8px;">📊 全件を表に書き出す（Excel / スプレッドシート）</button>
+    <div class="count" id="csvNote" style="margin-top:6px; text-align:center;">登録した全員を1つの表にまとめて書き出します（毎回ぜんぶ出力）</div>
     <div class="secbtns">
       <button class="btn ghost" id="exportBtn">📤 バックアップ書き出し</button>
       <button class="btn ghost" id="importBtn">📥 読み込み</button>
     </div>
-  </section>
-
-  <!-- ===== 優先順位ビュー ===== -->
-  <section id="view-prio" class="view">
-    <div class="count">優先度が高い順（★3→★1）。上から声をかけていきましょう。</div>
-    <div id="prioArea"></div>
   </section>
 </main>
 
 <nav>
   <button class="active" data-v="rec"><span class="ic">🎙️</span>録音</button>
   <button data-v="list"><span class="ic">📋</span>リスト</button>
-  <button data-v="prio"><span class="ic">⭐</span>優先順位</button>
 </nav>
 
 <!-- 編集モーダル -->
@@ -187,36 +173,39 @@
     <h2 id="sheetTitle">候補者を登録</h2>
     <div class="hd">各項目の 🎤 を押して、その項目だけを話してください。</div>
     <input type="hidden" id="f-id">
-    <div class="field"><label>名前</label>
+    <div class="field"><label>氏名</label>
       <div class="inwrap"><input id="f-name" placeholder="例：田中さん"><button class="micmini" data-mic="f-name">🎤</button></div>
     </div>
-    <div class="field"><label>仕事</label>
-      <div class="inwrap"><input id="f-job" placeholder="例：美容師"><button class="micmini" data-mic="f-job">🎤</button></div>
+    <div class="field"><label>性別</label>
+      <div class="statusrow" id="genderRow">
+        <button class="chip" data-g="男性">男性</button>
+        <button class="chip" data-g="女性">女性</button>
+        <button class="chip" data-g="その他">その他</button>
+      </div>
     </div>
-    <div class="field"><label>地域</label>
-      <div class="inwrap"><input id="f-area" placeholder="例：大阪市"><button class="micmini" data-mic="f-area">🎤</button></div>
+    <div class="field"><label>年齢</label>
+      <div class="inwrap"><input id="f-age" placeholder="例：40代 / 35歳"><button class="micmini" data-mic="f-age">🎤</button></div>
     </div>
     <div class="field"><label>関係性</label>
       <div class="inwrap"><input id="f-rel" placeholder="例：高校の同級生"><button class="micmini" data-mic="f-rel">🎤</button></div>
     </div>
-    <div class="field"><label>伝えたいこと</label>
-      <div class="inwrap"><textarea id="f-msg" placeholder="例：副業に興味ありそう"></textarea><button class="micmini" data-mic="f-msg">🎤</button></div>
+    <div class="field"><label>家族構成</label>
+      <div class="inwrap"><input id="f-family" placeholder="例：夫婦と子ども2人"><button class="micmini" data-mic="f-family">🎤</button></div>
     </div>
-    <div class="field"><label>なぜこの仕事をしてほしいか</label>
-      <div class="inwrap"><textarea id="f-why" placeholder="例：人と話すのが好きだから"></textarea><button class="micmini" data-mic="f-why">🎤</button></div>
+    <div class="field"><label>職業</label>
+      <div class="inwrap"><input id="f-job" placeholder="例：美容師"><button class="micmini" data-mic="f-job">🎤</button></div>
+    </div>
+    <div class="field"><label>居住地</label>
+      <div class="inwrap"><input id="f-area" placeholder="例：大阪市"><button class="micmini" data-mic="f-area">🎤</button></div>
+    </div>
+    <div class="field"><label>伝えたい理由・ニーズ・備考</label>
+      <div class="inwrap"><textarea id="f-note" placeholder="例：副業に興味ありそう／人と話すのが好き"></textarea><button class="micmini" data-mic="f-note">🎤</button></div>
     </div>
 
-    <div class="field"><label>つながり状況</label>
-      <div class="statusrow" id="statusRow">
-        <button class="chip on" data-s="未連絡">未連絡</button>
-        <button class="chip" data-s="連絡済">連絡済</button>
-        <button class="chip" data-s="アポ">アポ</button>
-        <button class="chip" data-s="紹介済">紹介済</button>
-      </div>
-    </div>
-    <div class="field"><label>優先度</label>
-      <div class="priostars" id="prioStars">
-        <span data-p="1">★</span><span data-p="2">★</span><span data-p="3">★</span>
+    <div class="field"><label>声かけ</label>
+      <div class="statusrow" id="calledRow">
+        <button class="chip on" data-c="0">❌ まだ</button>
+        <button class="chip" data-c="1">⭕ 声かけ済</button>
       </div>
     </div>
 
@@ -231,12 +220,24 @@
 <script>
 /* ===================== データ層 ===================== */
 const KEY = "listup_people_v1";
-const load = () => JSON.parse(localStorage.getItem(KEY) || "[]");
+function normalize(p){
+  // 旧データ（msg/why/status/prio）を新項目へ移行
+  if(p.note===undefined){
+    const old=[p.why,p.msg].filter(Boolean).join(" / ");
+    p.note = old || "";
+  }
+  if(p.gender===undefined) p.gender="";
+  if(p.age===undefined) p.age="";
+  if(p.family===undefined) p.family="";
+  if(p.called===undefined) p.called=false;
+  return p;
+}
+const load = () => JSON.parse(localStorage.getItem(KEY) || "[]").map(normalize);
 const save = (a) => localStorage.setItem(KEY, JSON.stringify(a));
 let people = load();
 let currentFilter = "all";
 
-function blank(){ return {id:null,name:"",job:"",area:"",rel:"",msg:"",why:"",status:"未連絡",prio:2}; }
+function blank(){ return {id:null,name:"",gender:"",age:"",rel:"",family:"",job:"",area:"",note:"",called:false}; }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -305,7 +306,9 @@ micBtn.addEventListener("click", ()=>{
 /* ===================== 文章 → 項目 振り分け ===================== */
 const JOB_WORDS=["美容師","看護師","教師","先生","会社員","公務員","主婦","主夫","自営","経営","社長","役員","営業","エンジニア","プログラマ","医者","医師","歯科","薬剤師","保育士","介護","農業","漁業","建設","大工","電気","運転手","ドライバー","調理","料理人","シェフ","パート","アルバイト","バイト","学生","フリーランス","デザイナー","美容","エステ","ネイル","整体","税理士","会計士","弁護士","行政書士","司法書士","不動産","保険","販売","事務","受付","トレーナー","講師","コーチ","コンサル","ヨガ","セラピスト","整骨","鍼灸"];
 const REL_WORDS=["同級生","同窓","同期","クラスメート","友達","友人","親友","知人","知り合い","親戚","いとこ","兄","弟","姉","妹","親","父","母","息子","娘","奥さん","旦那","先輩","後輩","同僚","上司","部下","近所","ご近所","ママ友","パパ友","元同僚","幼なじみ","幼馴染","取引先","お客","顧客","常連","チームメイト","サークル","部活"];
+const FAMILY_WORDS=["独身","既婚","未婚","夫婦","一人暮らし","ひとり暮らし","子ども","子供","お子さん","二人暮らし","三人家族","四人家族","シングル","実家","同居"];
 const AREA_RE=/[一-龥ぁ-んァ-ヶー]{1,8}?(?:都|道|府|県|市|区|町|村)/;
+const AGE_RE=/(?:\d{1,3}\s*歳|\d{1,2}\s*代|二十代|三十代|四十代|五十代|六十代|七十代|アラサー|アラフォー|アラフィフ)/;
 
 function cleanVal(s){
   return (s||"").replace(/^[、,。\s はがでにを]+/,"").replace(/[、,。\s]+$/,"")
@@ -319,12 +322,14 @@ function parse(raw){
 
   // --- キュー語抽出（区切りが無くても拾う） ---
   const cueDefs=[
-    {f:"name",re:/(?:名前|氏名)(?:は|が|って)?/},
-    {f:"job", re:/(?:お仕事|仕事|職業)(?:は|が|って)?/},
-    {f:"area",re:/(?:住んでいるの|住んでるの|住まい|地域|場所|エリア|地区|在住)(?:は|が)?/},
-    {f:"rel", re:/(?:関係性|関係|間柄|つながり)(?:は|が|って)?/},
-    {f:"why", re:/(?:してほしい理由|理由|目的|なぜなら|なぜかというと)(?:は|が)?/},
-    {f:"msg", re:/(?:伝えたいこと|伝えたいの|伝えること|メッセージ|ひとこと|一言)(?:は|が)?/},
+    {f:"name",  re:/(?:名前|氏名)(?:は|が|って)?/},
+    {f:"gender",re:/(?:性別)(?:は|が)?/},
+    {f:"age",   re:/(?:年齢|お年|年)(?:は|が)?/},
+    {f:"rel",   re:/(?:関係性|関係|間柄|つながり)(?:は|が|って)?/},
+    {f:"family",re:/(?:家族構成|家族)(?:は|が)?/},
+    {f:"job",   re:/(?:お仕事|仕事|職業)(?:は|が|って)?/},
+    {f:"area",  re:/(?:住んでいるの|住んでるの|住まい|居住地|地域|場所|エリア|地区|在住)(?:は|が)?/},
+    {f:"note",  re:/(?:してほしい理由|理由|ニーズ|備考|目的|なぜなら|なぜかというと|伝えたいこと|伝えたいの|伝えること|メッセージ|ひとこと|一言)(?:は|が)?/},
   ];
   let marks=[];
   cueDefs.forEach(c=>{
@@ -335,10 +340,12 @@ function parse(raw){
   const consumed=new Array(t.length).fill(false);
   for(let i=0;i<marks.length;i++){
     const cur=marks[i];
-    if(d[cur.f]) continue;
     const next = marks[i+1] ? marks[i+1].start : t.length;
     const val=cleanVal(t.slice(cur.end,next));
-    if(val) d[cur.f]=val;
+    if(val){
+      if(cur.f==="note") d.note = d.note ? d.note+" / "+val : val;
+      else if(!d[cur.f]) d[cur.f]=val;
+    }
     for(let k=cur.start;k<next;k++) consumed[k]=true;
   }
   // 未消費の残り
@@ -359,11 +366,13 @@ function parse(raw){
   // --- 残りをキーワード分類 ---
   parts.forEach(p=>{
     if(!p) return;
+    if(!d.gender && /^(男性|女性|男|女)$/.test(p)){ d.gender = /女/.test(p)?"女性":"男性"; return; }
+    if(!d.age && AGE_RE.test(p)){ d.age=p; return; }
     if(!d.job && JOB_WORDS.some(w=>p.includes(w))){ d.job=p; return; }
     if(!d.rel && REL_WORDS.some(w=>p.includes(w))){ d.rel=p; return; }
+    if(!d.family && FAMILY_WORDS.some(w=>p.includes(w))){ d.family=p; return; }
     if(!d.area && AREA_RE.test(p)){ d.area=p; return; }
-    if(!d.why && /(から|ので|ため|たい|ほしい)$/.test(p)){ d.why=p; return; }
-    d.msg = d.msg ? d.msg+" / "+p : p;
+    d.note = d.note ? d.note+" / "+p : p;
   });
   return d;
 }
@@ -379,38 +388,41 @@ document.getElementById("openFormBtn").addEventListener("click", ()=>{ stopActiv
 
 /* ===================== モーダル ===================== */
 const modal=document.getElementById("modal");
-let curStatus="未連絡", curPrio=2;
+let curGender="", curCalled=false;
 
 function openModal(d){
   document.getElementById("sheetTitle").textContent = d.id?"候補者を編集":"候補者を登録";
   document.getElementById("f-id").value=d.id||"";
   document.getElementById("f-name").value=d.name||"";
+  document.getElementById("f-age").value=d.age||"";
+  document.getElementById("f-rel").value=d.rel||"";
+  document.getElementById("f-family").value=d.family||"";
   document.getElementById("f-job").value=d.job||"";
   document.getElementById("f-area").value=d.area||"";
-  document.getElementById("f-rel").value=d.rel||"";
-  document.getElementById("f-msg").value=d.msg||"";
-  document.getElementById("f-why").value=d.why||"";
-  setStatus(d.status||"未連絡"); setPrio(d.prio||2);
+  document.getElementById("f-note").value=d.note||"";
+  setGender(d.gender||""); setCalled(!!d.called);
   document.getElementById("deleteBtn").style.display = d.id?"block":"none";
   modal.classList.add("open");
 }
 function closeModal(){ stopActive(); document.querySelectorAll(".micmini.rec").forEach(b=>{b.classList.remove("rec");b.textContent="🎤";}); modal.classList.remove("open"); }
 
-document.getElementById("statusRow").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(b) setStatus(b.dataset.s); });
-function setStatus(s){ curStatus=s; document.querySelectorAll("#statusRow .chip").forEach(c=>c.classList.toggle("on",c.dataset.s===s)); }
-document.getElementById("prioStars").addEventListener("click",e=>{ const s=e.target.closest("span"); if(s) setPrio(+s.dataset.p); });
-function setPrio(p){ curPrio=p; document.querySelectorAll("#prioStars span").forEach(s=>s.classList.toggle("on",+s.dataset.p<=p)); }
+document.getElementById("genderRow").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(b) setGender(b.dataset.g===curGender?"":b.dataset.g); });
+function setGender(g){ curGender=g; document.querySelectorAll("#genderRow .chip").forEach(c=>c.classList.toggle("on",c.dataset.g===g)); }
+document.getElementById("calledRow").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(b) setCalled(b.dataset.c==="1"); });
+function setCalled(v){ curCalled=v; document.querySelectorAll("#calledRow .chip").forEach(c=>c.classList.toggle("on",(c.dataset.c==="1")===v)); }
 
 document.getElementById("saveBtn").addEventListener("click", ()=>{
   const rec={
     id: document.getElementById("f-id").value || uid(),
     name: document.getElementById("f-name").value.trim()||"（名前未入力）",
+    gender: curGender,
+    age: document.getElementById("f-age").value.trim(),
+    rel: document.getElementById("f-rel").value.trim(),
+    family: document.getElementById("f-family").value.trim(),
     job: document.getElementById("f-job").value.trim(),
     area: document.getElementById("f-area").value.trim(),
-    rel: document.getElementById("f-rel").value.trim(),
-    msg: document.getElementById("f-msg").value.trim(),
-    why: document.getElementById("f-why").value.trim(),
-    status: curStatus, prio: curPrio, updated: Date.now()
+    note: document.getElementById("f-note").value.trim(),
+    called: curCalled, updated: Date.now()
   };
   const i=people.findIndex(p=>p.id===rec.id);
   if(i>=0) people[i]=rec; else people.unshift(rec);
@@ -427,33 +439,35 @@ modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
 
 /* ===================== 描画 ===================== */
 function metaLine(p){
-  const a=[p.job,p.rel,p.area].filter(Boolean).join(" ・ ");
-  const b=p.msg?("💬 "+p.msg):"";
-  return [a,b].filter(Boolean).join("<br>");
+  const line1=[p.gender,p.age,p.rel].filter(Boolean).join(" ・ ");
+  const line2=[p.job,p.area].filter(Boolean).join(" ・ ");
+  const line3=p.family?("👪 "+p.family):"";
+  const line4=p.note?("💬 "+p.note):"";
+  return [line1,line2,line3,line4].filter(Boolean).join("<br>");
 }
 function cardHTML(p){
-  const stars="★".repeat(p.prio)+"☆".repeat(3-p.prio);
+  const cls=p.called?"called":"uncalled";
+  const lbl=p.called?"⭕ 声かけ済":"❌ 未声かけ";
   return `<div class="card" data-id="${p.id}">
     <div class="top">
       <div><div class="name">${esc(p.name)}</div>
         <div class="meta">${metaLine(p)||"<span style='opacity:.5'>詳細なし</span>"}</div></div>
-      <span class="badge ${p.status}">${p.status}</span>
+      <span class="badge ${cls}">${lbl}</span>
     </div>
-    <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-      <span class="stars">${stars}</span>
+    <div style="margin-top:8px; text-align:right;">
       <span style="color:var(--sub); font-size:12px;">タップで編集</span>
     </div></div>`;
 }
 function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
 function render(){
-  let list = currentFilter==="all" ? people : people.filter(p=>p.status===currentFilter);
+  let list = people;
+  if(currentFilter==="called") list=people.filter(p=>p.called);
+  else if(currentFilter==="uncalled") list=people.filter(p=>!p.called);
   document.getElementById("listCount").textContent = `${people.length}人を登録中`;
   document.getElementById("listArea").innerHTML = list.length ? list.map(cardHTML).join("") :
     `<div class="empty-state">まだ登録がありません。<br>「録音」タブから追加してみましょう 🎙️</div>`;
-  const sorted=[...people].sort((a,b)=> b.prio-a.prio || (b.updated||0)-(a.updated||0));
-  document.getElementById("prioArea").innerHTML = sorted.length ? sorted.map(cardHTML).join("") :
-    `<div class="empty-state">登録するとここに優先順で並びます ⭐</div>`;
+  document.getElementById("csvBtn").textContent = `📊 全件を表に書き出す（全${people.length}件）`;
 }
 document.addEventListener("click",e=>{
   const c=e.target.closest(".card"); if(!c) return;
@@ -482,13 +496,13 @@ document.querySelectorAll("nav button").forEach(btn=>{
 function csvCell(v){ v=(v==null?"":String(v)).replace(/"/g,'""'); return '"'+v+'"'; }
 document.getElementById("csvBtn").addEventListener("click", ()=>{
   if(!people.length){ toast("先に候補者を登録してください"); return; }
-  const head=["名前","仕事","地域","関係性","伝えたいこと","なぜこの仕事をしてほしいか","つながり状況","優先度","更新日"];
+  const head=["氏名","性別","年齢","関係性","家族構成","職業","居住地","伝えたい理由・ニーズ・備考","声かけ","更新日"];
   const rows=people.map(p=>{
     const dt=p.updated?new Date(p.updated).toLocaleString("ja-JP"):"";
-    return [p.name,p.job,p.area,p.rel,p.msg,p.why,p.status,"★"+(p.prio||0),dt].map(csvCell).join(",");
+    return [p.name,p.gender,p.age,p.rel,p.family,p.job,p.area,p.note,(p.called?"○":"×"),dt].map(csvCell).join(",");
   });
   const csv="﻿"+[head.map(csvCell).join(","),...rows].join("\r\n");   // BOMで文字化け防止
-  const fname="リストアップ_"+new Date().toISOString().slice(0,10)+".csv";
+  const fname="リストアップ_全件.csv";   // 固定名＝毎回同じファイルを上書き（常に最新の全件マスター）
   const file=new File([csv],fname,{type:"text/csv"});
   if(navigator.canShare && navigator.canShare({files:[file]})){
     navigator.share({files:[file],title:"リストアップ"}).catch(()=>downloadBlob(csv,fname));
@@ -514,7 +528,7 @@ function fallbackCopy(data){
 }
 document.getElementById("importBtn").addEventListener("click", ()=>{
   const txt=prompt("バックアップのテキストを貼り付けてください"); if(!txt) return;
-  try{ const arr=JSON.parse(txt); if(Array.isArray(arr)){ people=arr; save(people); render(); toast("読み込みました ✓"); } else toast("形式が正しくありません"); }
+  try{ const arr=JSON.parse(txt); if(Array.isArray(arr)){ people=arr.map(normalize); save(people); render(); toast("読み込みました ✓"); } else toast("形式が正しくありません"); }
   catch(_){ toast("読み込めませんでした"); }
 });
 
